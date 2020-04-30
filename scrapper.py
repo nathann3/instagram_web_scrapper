@@ -1,19 +1,14 @@
-import time
 import pandas as pd
 import urllib.request
 import io
-import base64
-import re
 
-from IPython.display import HTML
-from io import BytesIO
 from selenium.webdriver import Firefox
 from PIL import Image
 
 
 class Scraper:
 
-    def __init__(self, tag, n=10):
+    def __init__(self, tag, n=9):
         self.tag = tag
         self.n = n
         self.browser = Firefox()
@@ -29,7 +24,7 @@ class Scraper:
         for web_element in lis:
             if 'https://www.instagram.com/p' in web_element.get_attribute('href'):
                 post_links.append(web_element.get_attribute('href'))
-        top_posts = post_links[:n-1]
+        top_posts = post_links[:n]
         return top_posts
 
     def get_image_urls(self):
@@ -52,62 +47,61 @@ class Scraper:
         return pictures_arrays
 
     def get_username(self):
-        username_list = []
-        for url in self.post_urls:
-            self.browser.get(url)
-            path = '/html/body/div[1]/section/main/div/div/article/header/div[2]/div[1]/div[1]/a'
-            lis = self.browser.find_element_by_xpath(path).text
-            username_list.append(lis)
-        return username_list
+        path = '/html/body/div[1]/section/main/div/div/article/header/div[2]/div[1]/div[1]/a'
+        username = self.browser.find_element_by_xpath(path).text
+        return username
 
     def get_post_likes(self):
+        try:
+            path = '/html/body/div[1]/section/main/div/div[1]/article/div[2]/section[2]/div/div/button/span'
+            likes = self.browser.find_element_by_xpath(path).text
+        except:
+            button_path = '/html/body/div[1]/section/main/div/div[1]/article/div[2]/section[2]/div/span'
+            self.browser.find_element_by_xpath(button_path).click()
+            video_path = '/html/body/div[1]/section/main/div/div[1]/article/div[2]/section[2]/div/div/div[4]/span'
+            likes = self.browser.find_element_by_xpath(video_path).text
+        return likes
+
+    def scrape(self):
+        time_list = []
+        caption_list = []
+        username_list = []
         likes_list = []
         for url in self.post_urls:
             self.browser.get(url)
-            try:
-                path = '/html/body/div[1]/section/main/div/div[1]/article/div[2]/section[2]/div/div/button/span'
-                likes = self.browser.find_element_by_xpath(path).text
-            except:
-                button_path = '/html/body/div[1]/section/main/div/div[1]/article/div[2]/section[2]/div/span'
-                self.browser.find_element_by_xpath(button_path).click()
-                video_path = '/html/body/div[1]/section/main/div/div[1]/article/div[2]/section[2]/div/div/div[4]/span'
-                likes = self.browser.find_element_by_xpath(video_path).text
-            likes_list.append(likes)
-        return likes_list
+            time_list.append(self.get_post_datetime())
+            caption_list.append(self.get_post_captions())
+            username_list.append(self.get_username())
+            likes_list.append(self.get_post_likes())
+        post_dict = {
+                    'time': time_list,
+                    'caption': caption_list,
+                    'username': username_list,
+                    'likes': likes_list
+                    }
+        return post_dict
 
     def get_post_datetime(self):
         # time is in UTC
-        time_list = []
-        for url in self.post_urls:
-            self.browser.get(url)
-            lis = self.browser.find_elements_by_tag_name('time')
-            try:
-                time = lis[0].get_attribute('datetime')
-                time_list.append(time)
-            except:
-                pass
-
-        return time_list
+        lis = self.browser.find_elements_by_tag_name('time')
+        time = lis[0].get_attribute('datetime')
+        return time
 
     def get_post_captions(self):
-        post_list = self.post_urls
-        caption_list = []
-        for post_link in post_list:
-            self.browser.get(post_link)
-            path = '/html/body/div[1]/section/main/div/div[1]/article/div[2]/div[1]/ul/div/li/div/div/div[2]/span'
-            lis = self.browser.find_element_by_xpath(path).text
-            caption_list.append(lis)
-        return caption_list
+        path = '/html/body/div[1]/section/main/div/div[1]/article/div[2]/div[1]/ul/div/li/div/div/div[2]/span'
+        caption = self.browser.find_element_by_xpath(path).text
+        return caption
 
     def create_df(self):
+        meta = self.scrape()
         data = {
             "post_url": self.post_urls,
             "image": self.get_image(),
             "image_url": self.image_urls,
-            "username": self.get_username(),
-            "picture_caption": self.get_post_captions(),
-            "picture_likes": self.get_post_likes(),
-            "datetime_posted": self.get_post_datetime()
+            "username": meta['username'],
+            "picture_caption": meta['caption'],
+            "picture_likes": meta['likes'],
+            "datetime_posted": meta['time']
         }
         df = pd.DataFrame(data)
         df["datetime_posted"] = pd.to_datetime(df["datetime_posted"])
@@ -116,7 +110,7 @@ class Scraper:
 
 
 def main():
-    corg = Scraper('corgis')
+    corg = Scraper('corgis', 1)
     print(corg.create_df())
 
 if __name__ == "__main__":
