@@ -21,6 +21,7 @@ class Posts:
         self.post_urls = self.get_post_urls(tag, n)
         self.scrape = self.post_urls
         self.df = self.scrape
+        self.likes = self.scrape['image_likes']
 
     def get_post_urls(self, tag, n):
         tag = self.tag
