@@ -1,4 +1,9 @@
+import urllib.request
+import io
+
 from selenium.webdriver import Firefox
+from PIL import Image
+
 
 class Scrapper:
 
@@ -22,6 +27,7 @@ class Scrapper:
         username_list = []
         likes_list = []
         image_urls_list = []
+        image_list = []
         self.browser = Firefox()
         for url in post_urls:
             self.browser.get(url)
@@ -30,8 +36,10 @@ class Scrapper:
             username_list.append(self.get_username())
             likes_list.append(self.get_post_likes())
             image_urls_list.append(self.get_image_urls())
+            image_list.append(self.get_image(self.get_image_urls()))
         post_dict = {
             'post_urls': post_urls,
+            'image': image_list,
             "datetime_posted": time_list,
             "image_caption": caption_list,
             'username': username_list,
@@ -78,3 +86,10 @@ class Scrapper:
         except:
             return ''
         return caption
+
+    def get_image(self, url):
+        request = urllib.request.urlopen(url).read()
+        img = io.BytesIO(request)
+        image = Image.open(img)
+        image.thumbnail((150, 150), Image.LANCZOS)
+        return image

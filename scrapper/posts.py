@@ -16,7 +16,6 @@ class Posts:
         self.n = n
         self.post_urls = self.get_post_urls(tag, n)
         self.scrape = self.post_urls
-        self.scrape["image"] = self.get_image(self.scrape['image_url'])
 
     def get_post_urls(self, tag, n):
         tag = self.tag
@@ -31,15 +30,6 @@ class Posts:
         top_posts = post_links[:n]
         browser.quit()
         return top_posts
-
-    def get_image(self, url_list):
-        pictures_arrays = []
-        for url in url_list:
-            img = io.BytesIO(urllib.request.urlopen(url).read())
-            image = Image.open(img)
-            image.thumbnail((150, 150), Image.LANCZOS)
-            pictures_arrays.append(image)
-        return pictures_arrays
 
     def create_df(self):
         data = self.scrape
