@@ -1,3 +1,4 @@
+import time
 import urllib.request
 import io
 import pandas as pd
@@ -14,23 +15,30 @@ class Posts():
     scrape = Scrapper()
     df = Create_DataFrame()
 
-    def __init__(self, tag, n=9):
-        self.tag = tag
+    def __init__(self, term, n=9):
+        self.term = term
         self.n = n
-        self.post_urls = self.get_post_urls(tag, n)
+        self.post_urls = self.get_post_urls(term)
         self.scrape = self.post_urls
         self.df = self.scrape
 
-    def get_post_urls(self, tag, n):
-        tag = self.tag
-        n = self.n
+    def get_post_urls(self, term):
+        if term.startswith("#"):
+            term = term.lstrip('#')
+            url = 'https://www.instagram.com/explore/tags/%s' % (term)
+        else:
+            url = "https://www.instagram.com/%s" % (term)
         browser = Firefox()
-        browser.get('https://www.instagram.com/explore/tags/%s' % (tag))
-        lis = browser.find_elements_by_tag_name('a')
+        browser.get(url)
         post_links = []
-        for web_element in lis:
-            if 'https://www.instagram.com/p' in web_element.get_attribute('href'):
-                post_links.append(web_element.get_attribute('href'))
-        top_posts = post_links[:n]
+        while len(post_links) < self.n:
+            lis = browser.find_elements_by_tag_name('a')
+            for web_element in lis:
+                if 'https://www.instagram.com/p' in web_element.get_attribute('href'):
+                    post_links.append(web_element.get_attribute('href'))
+            scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
+            browser.execute_script(scroll_down)
+            time.sleep(10)
+        posts = post_links[:self.n]
         browser.quit()
-        return top_posts
+        return posts
