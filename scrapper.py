@@ -5,7 +5,7 @@ import io
 from selenium.webdriver import Firefox
 from PIL import Image
 
-class Scrape:
+class Scrapper:
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -84,9 +84,9 @@ class Scrape:
         return caption
 
 
-class Scraper:
+class Posts:
 
-    scrape = Scrape()
+    scrape = Scrapper()
 
     def __init__(self, tag, n=9):
         self.tag = tag
@@ -133,7 +133,7 @@ class Scraper:
 
 
 def main():
-    corg = Scraper('corgis', 1)
+    corg = Posts('corgis', 3)
     df = corg.create_df()
     print(df)
     # print(corg.likes)  # the goal
