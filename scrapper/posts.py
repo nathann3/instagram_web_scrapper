@@ -2,20 +2,25 @@ import urllib.request
 import io
 import pandas as pd
 
-from selenium.webdriver import Firefox
-from .scrapper import Scrapper
 from PIL import Image
+from selenium.webdriver import Firefox
+
+from .scrapper import Scrapper
+from .create_df import Create_DataFrame
+
 
 
 class Posts:
 
     scrape = Scrapper()
+    df = Create_DataFrame()
 
     def __init__(self, tag, n=9):
         self.tag = tag
         self.n = n
         self.post_urls = self.get_post_urls(tag, n)
         self.scrape = self.post_urls
+        self.df = self.scrape
 
     def get_post_urls(self, tag, n):
         tag = self.tag
@@ -30,10 +35,3 @@ class Posts:
         top_posts = post_links[:n]
         browser.quit()
         return top_posts
-
-    def create_df(self):
-        data = self.scrape
-        df = pd.DataFrame(data)
-        df["datetime_posted"] = pd.to_datetime(df["datetime_posted"])
-        df['hashtags'] = df['image_caption'].str.findall(r"#\w+")
-        return df
