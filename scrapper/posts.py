@@ -16,6 +16,7 @@ class Posts:
         self.n = n
         self.post_urls = self.get_post_urls(tag, n)
         self.scrape = self.post_urls
+        self.scrape["image"] = self.get_image(self.scrape['image_url'])
 
     def get_post_urls(self, tag, n):
         tag = self.tag
@@ -42,7 +43,6 @@ class Posts:
 
     def create_df(self):
         data = self.scrape
-        data["image"] = self.get_image(self.scrape['image_url'])
         df = pd.DataFrame(data)
         df["datetime_posted"] = pd.to_datetime(df["datetime_posted"])
         df['hashtags'] = df['image_caption'].str.findall(r"#\w+")
