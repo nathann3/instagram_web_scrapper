@@ -13,6 +13,7 @@ class Scraper:
         self.n = n
         self.browser = Firefox()
         self.post_urls = self.get_post_urls(tag, n)
+        self.meta = self.scrape()
 
     def get_post_urls(self, tag, n):
         tag = self.tag
@@ -76,6 +77,7 @@ class Scraper:
                     'likes': likes_list,
                     'image_urls': image_urls_list
                     }
+        self.browser.quit()
         return post_dict
 
     def get_post_datetime(self):
@@ -90,15 +92,14 @@ class Scraper:
         return caption
 
     def create_df(self):
-        meta = self.scrape()
         data = {
             "post_url": self.post_urls,
-            "image": self.get_image(meta['image_urls']),
-            "image_url": meta['image_urls'],
-            "username": meta['username'],
-            "picture_caption": meta['caption'],
-            "picture_likes": meta['likes'],
-            "datetime_posted": meta['time']
+            "image": self.get_image(self.meta['image_urls']),
+            "image_url": self.meta['image_urls'],
+            "username": self.meta['username'],
+            "picture_caption": self.meta['caption'],
+            "picture_likes": self.meta['likes'],
+            "datetime_posted": self.meta['time']
         }
         df = pd.DataFrame(data)
         df["datetime_posted"] = pd.to_datetime(df["datetime_posted"])
