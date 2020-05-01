@@ -16,16 +16,11 @@ class Create_DataFrame:
         self.name = name
 
     def create_df(self, dict):
-        data = {
-            "post_url": self.post_urls,
-            "image": self.get_image(dict['image_urls']),
-            "image_url": dict['image_urls'],
-            "username": dict['username'],
-            "picture_caption": dict['caption'],
-            "picture_likes": dict['likes'],
-            "datetime_posted": dict['time'],
-        }
+        data = dict
         df = pd.DataFrame(data)
-        df["datetime_posted"] = pd.to_datetime(df["datetime_posted"])
-        df['hashtags'] = df['picture_caption'].str.findall(r"#\w+")
+        if "datetime_posted" in df.columns:
+            df["datetime_posted"] = pd.to_datetime(df["datetime_posted"])
+
+        if 'picture_caption' in df.columns:
+            df['hashtags'] = df['picture_caption'].str.findall(r"#\w+")
         return df
