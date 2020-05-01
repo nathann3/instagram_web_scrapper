@@ -31,11 +31,12 @@ class Scrapper:
             likes_list.append(self.get_post_likes())
             image_urls_list.append(self.get_image_urls())
         post_dict = {
-            'time': time_list,
-            'caption': caption_list,
+            'post_urls': post_urls,
+            "datetime_posted": time_list,
+            "image_caption": caption_list,
             'username': username_list,
-            'likes': likes_list,
-            'image_urls': image_urls_list,
+            "image_likes": likes_list,
+            'image_url': image_urls_list,
         }
         self.browser.quit()
         return post_dict
