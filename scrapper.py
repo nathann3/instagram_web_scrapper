@@ -13,7 +13,6 @@ class Scraper:
         self.n = n
         self.browser = Firefox()
         self.post_urls = self.get_post_urls(tag, n)
-        self.image_urls = self.get_image_urls()
 
     def get_post_urls(self, tag, n):
         tag = self.tag
@@ -28,16 +27,11 @@ class Scraper:
         return top_posts
 
     def get_image_urls(self):
-        posts = self.post_urls
-        url_list = []
-        for post_link in posts:
-            self.browser.get(post_link)
-            lis = self.browser.find_elements_by_tag_name('img')
-            url_list.append(lis[1].get_attribute('src'))
-        return url_list
+        lis = self.browser.find_elements_by_tag_name('img')
+        image_url = lis[1].get_attribute('src')
+        return image_url
 
-    def get_image(self):
-        url_list = self.image_urls
+    def get_image(self, url_list):
         pictures_arrays = []
         for url in url_list:
             img = io.BytesIO(urllib.request.urlopen(url).read())
@@ -67,17 +61,20 @@ class Scraper:
         caption_list = []
         username_list = []
         likes_list = []
+        image_urls_list = []
         for url in self.post_urls:
             self.browser.get(url)
             time_list.append(self.get_post_datetime())
             caption_list.append(self.get_post_captions())
             username_list.append(self.get_username())
             likes_list.append(self.get_post_likes())
+            image_urls_list.append(self.get_image_urls())
         post_dict = {
                     'time': time_list,
                     'caption': caption_list,
                     'username': username_list,
-                    'likes': likes_list
+                    'likes': likes_list,
+                    'image_urls': image_urls_list
                     }
         return post_dict
 
@@ -96,8 +93,8 @@ class Scraper:
         meta = self.scrape()
         data = {
             "post_url": self.post_urls,
-            "image": self.get_image(),
-            "image_url": self.image_urls,
+            "image": self.get_image(meta['image_urls']),
+            "image_url": meta['image_urls'],
             "username": meta['username'],
             "picture_caption": meta['caption'],
             "picture_likes": meta['likes'],
@@ -110,8 +107,9 @@ class Scraper:
 
 
 def main():
-    corg = Scraper('corgis', 1)
-    print(corg.create_df())
+    corg = Scraper('corgis', 10)
+    df = corg.create_df()
+    print(df)
 
 if __name__ == "__main__":
     main()
