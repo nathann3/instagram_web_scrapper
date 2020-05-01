@@ -14,7 +14,10 @@ class Scrapper:
 
     def __set__(self, instance, value):
         val = self.scrape(value)
-        return setattr(instance, '_' + self.name, val)
+        setattr(instance, '_' + self.name, val)
+        for key in val:
+            setattr(instance, key, val[key])
+
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -38,12 +41,12 @@ class Scrapper:
             image_urls_list.append(self.get_image_urls())
             image_list.append(self.get_image(self.get_image_urls()))
         post_dict = {
-            'post_urls': post_urls,
+            'post_url': post_urls,
             'image': image_list,
             "datetime_posted": time_list,
-            "image_caption": caption_list,
+            "caption": caption_list,
             'username': username_list,
-            "image_likes": likes_list,
+            "likes": likes_list,
             'image_url': image_urls_list,
         }
         self.browser.quit()
