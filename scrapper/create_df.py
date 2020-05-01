@@ -18,12 +18,11 @@ class Create_DataFrame:
     def create_df(self, dict):
         data = dict
         df = pd.DataFrame(data)
-        if "image_likes" in df.columns:
-            df["image_likes"] = df["image_likes"].apply(lambda x: int(x.replace(',', '')))
 
         if "datetime_posted" in df.columns:
             df["datetime_posted"] = pd.to_datetime(df["datetime_posted"])
 
         if 'image_caption' in df.columns:
             df['hashtags'] = df['image_caption'].str.findall(r"#\w+")
+
         return df

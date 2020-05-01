@@ -71,6 +71,8 @@ class Scrapper:
                 likes = self.browser.find_element_by_xpath(video_path).text
             except:
                 likes = "0"
+        likes = int(likes.replace(',', ''))
+
         return likes
 
     def get_post_datetime(self):
