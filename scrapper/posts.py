@@ -41,15 +41,6 @@ class Posts:
         return pictures_arrays
 
     def create_df(self):
-        # data = {
-        #     "post_url": self.post_urls,
-        #     "image": self.get_image(self.scrape['image_urls']),
-        #     "image_url": self.scrape['image_urls'],
-        #     "username": self.scrape['username'],
-        #     "image_caption": self.scrape['caption'],
-        #     "image_likes": self.scrape['likes'],
-        #     "datetime_posted": self.scrape['time'],
-        # }
         data = self.scrape
         data["image"] = self.get_image(self.scrape['image_url'])
         df = pd.DataFrame(data)
