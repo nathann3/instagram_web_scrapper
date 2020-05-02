@@ -14,7 +14,7 @@ class Scrapper:
         return getattr(instance, '_' + self.name)
 
     def __set__(self, instance, value):
-        val = self.scrape(value['post_urls'], user=value["user"], password=value["password"])
+        val = self.scrape(value['post_urls'], value['browser'], user=value["user"], password=value["password"])
         setattr(instance, '_' + self.name, val)
         for key in val:
             setattr(instance, key, val[key])
@@ -25,14 +25,14 @@ class Scrapper:
 
     # ------------------------------------------------------------------------------------------------
 
-    def scrape(self, post_urls, user=None, password=None):
+    def scrape(self, post_urls, browser, user=None, password=None):
         time_list = []
         caption_list = []
         username_list = []
         likes_list = []
         image_urls_list = []
         image_list = []
-        self.browser = Firefox()
+        self.browser = browser
         if user:
             self.login(self.browser, user, password)
         for url in post_urls:

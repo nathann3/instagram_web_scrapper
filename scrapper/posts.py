@@ -20,11 +20,14 @@ class Posts():
         self.n = n
         self.user = user
         self.password = password
-        self.post_urls = self.get_post_urls(term)
-        self.scrape = {'post_urls': self.post_urls, "user": user, "password": password}
+        self.dumb = self.get_post_urls(term)
+        self.post_urls = self.dumb['posts']
+        self.browser = self.dumb['browser']
+        self.scrape = {'post_urls': self.post_urls, 'browser': self.browser, "user": user, "password": password}
         self.df = self.scrape
 
     def get_post_urls(self, term):
+        print('this ran')
         if term.startswith("#"):
             term = term.lstrip('#')
             url = 'https://www.instagram.com/explore/tags/%s' % (term)
@@ -42,10 +45,9 @@ class Posts():
                     post_links.append(web_element.get_attribute('href'))
             scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
             browser.execute_script(scroll_down)
-            time.sleep(10)
+            time.sleep(5)
         posts = post_links[:self.n]
-        browser.quit()
-        return posts
+        return {'posts': posts, 'browser': browser}
 
     def login(self, browser, user, password):
         browser.get('https://www.instagram.com/')
