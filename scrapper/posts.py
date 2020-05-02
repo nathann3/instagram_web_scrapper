@@ -15,11 +15,13 @@ class Posts():
     scrape = Scrapper()
     df = Create_DataFrame()
 
-    def __init__(self, term, n=9):
+    def __init__(self, term, n=9, user=None, password=None):
         self.term = term
         self.n = n
+        self.user = user
+        self.password = password
         self.post_urls = self.get_post_urls(term)
-        self.scrape = self.post_urls
+        self.scrape = {'post_urls': self.post_urls, "user": user, "password": password}
         self.df = self.scrape
 
     def get_post_urls(self, term):
@@ -29,6 +31,8 @@ class Posts():
         else:
             url = "https://www.instagram.com/%s" % (term)
         browser = Firefox()
+        if self.user:
+            self.login(browser, self.user, self.password)
         browser.get(url)
         post_links = []
         while len(post_links) < self.n:
@@ -42,3 +46,15 @@ class Posts():
         posts = post_links[:self.n]
         browser.quit()
         return posts
+
+    def login(self, browser, user, password):
+        browser.get('https://www.instagram.com/')
+        time.sleep(2)
+        fields = browser.find_elements_by_tag_name('input')
+        fields[0].send_keys(user)
+        time.sleep(0.5)
+        fields[1].send_keys(password)
+        time.sleep(0.5)
+        login_button = '/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div[4]/button'
+        browser.find_element_by_xpath(login_button).click()
+        time.sleep(6)
