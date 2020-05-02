@@ -20,34 +20,31 @@ class Posts():
         self.n = n
         self.user = user
         self.password = password
-        self.dumb = self.get_post_urls(term)
-        self.post_urls = self.dumb['posts']
-        self.browser = self.dumb['browser']
+        self.browser = Firefox()
+        self.post_urls = self.get_post_urls(term)
         self.scrape = {'post_urls': self.post_urls, 'browser': self.browser, "user": user, "password": password}
         self.df = self.scrape
 
     def get_post_urls(self, term):
-        print('this ran')
         if term.startswith("#"):
             term = term.lstrip('#')
             url = 'https://www.instagram.com/explore/tags/%s' % (term)
         else:
             url = "https://www.instagram.com/%s" % (term)
-        browser = Firefox()
         if self.user:
-            self.login(browser, self.user, self.password)
-        browser.get(url)
+            self.login(self.browser, self.user, self.password)
+        self.browser.get(url)
         post_links = []
         while len(post_links) < self.n:
-            lis = browser.find_elements_by_tag_name('a')
+            lis = self.browser.find_elements_by_tag_name('a')
             for web_element in lis:
                 if 'https://www.instagram.com/p' in web_element.get_attribute('href'):
                     post_links.append(web_element.get_attribute('href'))
             scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
-            browser.execute_script(scroll_down)
+            self.browser.execute_script(scroll_down)
             time.sleep(5)
         posts = post_links[:self.n]
-        return {'posts': posts, 'browser': browser}
+        return posts
 
     def login(self, browser, user, password):
         browser.get('https://www.instagram.com/')
