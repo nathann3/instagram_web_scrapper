@@ -22,7 +22,7 @@ class Create_DataFrame:
         if "datetime_posted" in df.columns:
             df["datetime_posted"] = pd.to_datetime(df["datetime_posted"])
 
-        if 'image_caption' in df.columns:
-            df['hashtags'] = df['image_caption'].str.findall(r"#\w+")
+        if 'caption' in df.columns:
+            df['hashtags'] = df['caption'].str.findall(r"#\w+")
 
         return df

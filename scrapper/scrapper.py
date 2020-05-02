@@ -1,5 +1,6 @@
 import urllib.request
 import io
+import time
 
 from selenium.webdriver import Firefox
 from PIL import Image
@@ -13,15 +14,18 @@ class Scrapper:
         return getattr(instance, '_' + self.name)
 
     def __set__(self, instance, value):
-        val = self.scrape(value)
-        return setattr(instance, '_' + self.name, val)
+        val = self.scrape(value['post_urls'], user=value["user"], password=value["password"])
+        setattr(instance, '_' + self.name, val)
+        for key in val:
+            setattr(instance, key, val[key])
+
 
     def __set_name__(self, owner, name):
         self.name = name
 
     # ------------------------------------------------------------------------------------------------
 
-    def scrape(self, post_urls):
+    def scrape(self, post_urls, user=None, password=None):
         time_list = []
         caption_list = []
         username_list = []
@@ -29,6 +33,8 @@ class Scrapper:
         image_urls_list = []
         image_list = []
         self.browser = Firefox()
+        if user:
+            self.login(self.browser, user, password)
         for url in post_urls:
             self.browser.get(url)
             time_list.append(self.get_post_datetime())
@@ -38,12 +44,12 @@ class Scrapper:
             image_urls_list.append(self.get_image_urls())
             image_list.append(self.get_image(self.get_image_urls()))
         post_dict = {
-            'post_urls': post_urls,
+            'post_url': post_urls,
             'image': image_list,
             "datetime_posted": time_list,
-            "image_caption": caption_list,
+            "caption": caption_list,
             'username': username_list,
-            "image_likes": likes_list,
+            "likes": likes_list,
             'image_url': image_urls_list,
         }
         self.browser.quit()
@@ -95,3 +101,15 @@ class Scrapper:
         image = Image.open(img)
         image.thumbnail((150, 150), Image.LANCZOS)
         return image
+
+    def login(self, browser, user, password):
+        browser.get('https://www.instagram.com/')
+        time.sleep(2)
+        fields = browser.find_elements_by_tag_name('input')
+        fields[0].send_keys(user)
+        time.sleep(0.5)
+        fields[1].send_keys(password)
+        time.sleep(0.5)
+        login_button = '/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div[4]/button'
+        browser.find_element_by_xpath(login_button).click()
+        time.sleep(6)
