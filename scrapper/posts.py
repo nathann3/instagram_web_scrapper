@@ -38,7 +38,7 @@ class Posts():
         while len(post_links) < self.n:
             lis = self.browser.find_elements_by_tag_name('a')
             for web_element in lis:
-                if 'https://www.instagram.com/p' in web_element.get_attribute('href'):
+                if 'https://www.instagram.com/p' in web_element.get_attribute('href') and web_element.get_attribute('href') not in post_links:
                     post_links.append(web_element.get_attribute('href'))
             scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
             self.browser.execute_script(scroll_down)
