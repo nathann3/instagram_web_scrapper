@@ -2,7 +2,6 @@ import urllib.request
 import io
 import time
 
-from selenium.webdriver import Firefox
 from PIL import Image
 
 
@@ -14,7 +13,7 @@ class Scrapper:
         return getattr(instance, '_' + self.name)
 
     def __set__(self, instance, value):
-        val = self.scrape(value['post_urls'], user=value["user"], password=value["password"])
+        val = self.scrape(value['post_urls'], value['browser'])
         setattr(instance, '_' + self.name, val)
         for key in val:
             setattr(instance, key, val[key])
@@ -25,16 +24,14 @@ class Scrapper:
 
     # ------------------------------------------------------------------------------------------------
 
-    def scrape(self, post_urls, user=None, password=None):
+    def scrape(self, post_urls, browser):
         time_list = []
         caption_list = []
         username_list = []
         likes_list = []
         image_urls_list = []
         image_list = []
-        self.browser = Firefox()
-        if user:
-            self.login(self.browser, user, password)
+        self.browser = browser
         for url in post_urls:
             self.browser.get(url)
             time_list.append(self.get_post_datetime())
@@ -43,6 +40,7 @@ class Scrapper:
             likes_list.append(self.get_post_likes())
             image_urls_list.append(self.get_image_urls())
             image_list.append(self.get_image(self.get_image_urls()))
+            time.sleep(2)
         post_dict = {
             'post_url': post_urls,
             'image': image_list,
@@ -101,15 +99,3 @@ class Scrapper:
         image = Image.open(img)
         image.thumbnail((150, 150), Image.LANCZOS)
         return image
-
-    def login(self, browser, user, password):
-        browser.get('https://www.instagram.com/')
-        time.sleep(2)
-        fields = browser.find_elements_by_tag_name('input')
-        fields[0].send_keys(user)
-        time.sleep(0.5)
-        fields[1].send_keys(password)
-        time.sleep(0.5)
-        login_button = '/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div[4]/button'
-        browser.find_element_by_xpath(login_button).click()
-        time.sleep(6)
