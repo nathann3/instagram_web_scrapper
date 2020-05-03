@@ -2,7 +2,6 @@ import urllib.request
 import io
 import time
 
-from selenium.webdriver import Firefox
 from PIL import Image
 
 
