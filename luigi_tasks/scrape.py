@@ -24,19 +24,24 @@ class ScrapePosts(Task):
         n = int(self.number)
         posts = Posts(self.target, n, self.user, self.password)
         df = posts.df
-
+        output_directory = self.LOCAL_ROOT + "/" + self.target + "_images"
         with self.output().temporary_path() as temp_output_path:
 
-            with TemporaryDirectory() as tmp:
-                os.mkdir(tmp+'/t')
-                number = range(self.number)
-                for n in number:
-                    file_name = tmp +"/t/picture" +str(n)+".jpg"
-                    df['image'][n].save(file_name)
-                if os.path.exists(tmp + "/t/picture" +str(self.number-1)+".jpg"):
-                    os.rename(tmp+"/t", self.LOCAL_ROOT + "/images")
+            atomic_directory(df['image'], "picture_*.jpg", output_directory, n)
 
-            if os.path.exists(self.LOCAL_ROOT + "/images" + "/picture" +str(self.number-1)+".jpg"):
+            if os.path.exists(output_directory):
                 df['image'] = df['image'].apply(np.array)
                 df.to_csv(temp_output_path, index=False)
 
+def atomic_directory(array, fileglob, directory, ntimes):
+    if not os.path.exists(directory):
+        with TemporaryDirectory() as tmp:
+            os.mkdir(tmp+'/t')
+            for n in range(ntimes):
+                file_name = fileglob.replace('*', str(n))
+                temp_name = tmp + "/t/" + file_name
+                array[n].save(temp_name)
+                if os.path.exists(tmp + "/t/" + fileglob.replace('*', str(ntimes-1))):
+                    os.rename(tmp+"/t", directory)
+    else:
+        raise FileExistsError("File already exists!!!")
