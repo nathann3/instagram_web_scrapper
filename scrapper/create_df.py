@@ -1,5 +1,19 @@
+import base64
 import pandas as pd
 
+from IPython.display import HTML
+from io import BytesIO
+
+
+def image_formatter(im):
+    return f'<img src="data:image/jpeg;base64,{image_base64(im)}">'
+
+def image_base64(im):
+    if isinstance(im, str):
+        im = get_thumbnail(im)
+    with BytesIO() as buffer:
+        im.save(buffer, 'jpeg')
+        return base64.b64encode(buffer.getvalue()).decode()
 
 class Create_DataFrame:
 
@@ -9,8 +23,9 @@ class Create_DataFrame:
         return getattr(instance, '_' + self.name)
 
     def __set__(self, instance, value):
-        val = self.create_df(value)
-        return setattr(instance, '_' + self.name, val)
+        vals = self.create_df(value)
+        setattr(instance, '_' + self.name, vals['df'])
+        setattr(instance, 'html_df', vals['html_df'])
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -25,4 +40,6 @@ class Create_DataFrame:
         if 'caption' in df.columns:
             df['hashtags'] = df['caption'].str.findall(r"#\w+")
 
-        return df
+        html_df = HTML(df.to_html(formatters={'image': image_formatter}, escape=False))
+
+        return {"df": df, "html_df": html_df}

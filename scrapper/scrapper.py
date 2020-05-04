@@ -97,5 +97,5 @@ class Scrapper:
         request = urllib.request.urlopen(url).read()
         img = io.BytesIO(request)
         image = Image.open(img)
-        image.thumbnail((150, 150), Image.LANCZOS)
+        image.thumbnail((100, 100), Image.LANCZOS)
         return image
