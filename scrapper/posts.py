@@ -4,6 +4,7 @@ from selenium.webdriver import Firefox
 
 from .scrapper import Scrapper
 from .create_df import Create_DataFrame
+from .utils import user_or_tag
 
 
 class Posts():
@@ -18,11 +19,7 @@ class Posts():
         self.df = self.scrape
 
     def get_post_urls(self, term, n):
-        if term.startswith("#"):
-            term = term.lstrip('#')
-            url = 'https://www.instagram.com/explore/tags/%s' % (term)
-        else:
-            url = "https://www.instagram.com/%s" % (term)
+        url = user_or_tag(term)
         if self.user:
             self.login(self.browser, self.user, self.password)
         self.browser.get(url)
