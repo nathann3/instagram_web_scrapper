@@ -19,7 +19,7 @@ class ScrapePosts(Task):
     format = Parameter(default="parquet")
 
     def output(self):
-        return LocalTarget(self.LOCAL_ROOT +"/%s_posts.csv" % self.target)
+        return LocalTarget(self.LOCAL_ROOT +"/{}_posts.{}".format(self.target, self.format))
 
     def run(self):
         n = int(self.number)
