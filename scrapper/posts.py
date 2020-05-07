@@ -1,3 +1,4 @@
+import os
 import time
 
 from selenium.webdriver import Firefox
@@ -7,9 +8,29 @@ from .create_df import Create_DataFrame
 from .utils import user_or_tag
 
 
-class Posts():
+class CheckEnv:
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return getattr(instance, '_' + self.name)
+
+    def __set__(self, instance, value):
+        if value is None:
+            try:
+                value = os.environ["INSTA_%s" % self.name.upper()]
+            except KeyError:
+                value = None
+        setattr(instance, '_' + self.name, value)
+
+    def __set_name__(self, owner, name):
+        self.name = name
+
+class Posts:
     scrape = Scrapper()
     df = Create_DataFrame()
+    user = CheckEnv()
+    password = CheckEnv()
 
     def __init__(self, term, n=9, user=None, password=None):
         self.user = user
@@ -20,7 +41,7 @@ class Posts():
 
     def get_post_urls(self, term, n):
         url = user_or_tag(term)
-        if self.user:
+        if self.user and self.password:
             self.login(self.browser, self.user, self.password)
         self.browser.get(url)
         post_links = []
