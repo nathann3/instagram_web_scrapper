@@ -13,6 +13,7 @@ pillow = "*"
 luigi = "*"
 jupyter = "*"
 pyarrow = "*"
+atomicwrites = "*"
 
 [requires]
 python_version = "3.7"
