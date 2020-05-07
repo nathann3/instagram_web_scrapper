@@ -5,7 +5,6 @@ from selenium.webdriver import Firefox
 
 from .scrapper import Scrapper
 from .create_df import Create_DataFrame
-from .utils import user_or_tag
 
 
 class CheckEnv:
@@ -27,6 +26,7 @@ class CheckEnv:
         self.name = name
 
 class Posts:
+
     scrape = Scrapper()
     df = Create_DataFrame()
     user = CheckEnv()
@@ -68,3 +68,11 @@ class Posts:
         login_button = '/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div[4]/button'
         browser.find_element_by_xpath(login_button).click()
         time.sleep(6)
+
+def user_or_tag(term):
+    if term.startswith("#"):
+        term = term.lstrip('#')
+        url = 'https://www.instagram.com/explore/tags/%s' % (term)
+    else:
+        url = "https://www.instagram.com/%s" % (term)
+    return url

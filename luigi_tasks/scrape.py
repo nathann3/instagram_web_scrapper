@@ -16,9 +16,10 @@ class ScrapePosts(Task):
     number = Parameter(default="9")
     user = Parameter(default=None)
     password = Parameter(default=None)
+    format = Parameter(default="parquet")
 
     def output(self):
-        return LocalTarget(self.LOCAL_ROOT +"/%s_posts.csv" % self.target)
+        return LocalTarget(self.LOCAL_ROOT +"/{}_posts.{}".format(self.target, self.format))
 
     def run(self):
         n = int(self.number)
@@ -31,7 +32,16 @@ class ScrapePosts(Task):
 
             if os.path.exists(output_directory):
                 df['image'] = df['image'].apply(np.array)
-                df.to_csv(temp_output_path, index=False)
+
+                if self.format.lower() == "parquet":
+                    df['image'] = df['image'].apply(lambda x: x.tolist())
+                    df.to_parquet(temp_output_path, index=False)
+
+                elif self.format.lower() == "csv":
+                    df.to_csv(temp_output_path, index=False)
+
+                else:
+                    raise ValueError("output should be parquet or csv")
 
 def atomic_directory(array, fileglob, directory, ntimes):
     if not os.path.exists(directory):
