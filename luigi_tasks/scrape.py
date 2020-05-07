@@ -5,6 +5,7 @@ import os
 from luigi import Parameter, Task, LocalTarget
 from tempfile import TemporaryDirectory
 
+from scrapper.io import atomic_write
 from scrapper.posts import Posts
 
 class ScrapePosts(Task):
@@ -50,7 +51,8 @@ def atomic_directory(array, fileglob, directory, ntimes):
             for n in range(ntimes):
                 file_name = fileglob.replace('*', str(n))
                 temp_name = tmp + "/t/" + file_name
-                array[n].save(temp_name)
+                with atomic_write(temp_name, overwrite=True) as f:
+                    array[n].save(f)
 
                 if (
                         os.path.exists(tmp + "/t/" + fileglob.replace("*", str(ntimes - 1)))
@@ -60,3 +62,4 @@ def atomic_directory(array, fileglob, directory, ntimes):
                     os.rename(tmp + "/t", directory)
     else:
         raise FileExistsError("File already exists!!!")
+
