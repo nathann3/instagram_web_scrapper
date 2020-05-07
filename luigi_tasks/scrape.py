@@ -41,7 +41,12 @@ def atomic_directory(array, fileglob, directory, ntimes):
                 file_name = fileglob.replace('*', str(n))
                 temp_name = tmp + "/t/" + file_name
                 array[n].save(temp_name)
-                if os.path.exists(tmp + "/t/" + fileglob.replace('*', str(ntimes-1))):
-                    os.rename(tmp+"/t", directory)
+
+                if (
+                        os.path.exists(tmp + "/t/" + fileglob.replace("*", str(ntimes - 1)))
+                        and len([name for name in os.listdir(tmp + "/t/") if os.path.isfile(tmp+"/t/"+name)])
+                        == ntimes
+                ):
+                    os.rename(tmp + "/t", directory)
     else:
         raise FileExistsError("File already exists!!!")
