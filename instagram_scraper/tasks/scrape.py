@@ -5,8 +5,8 @@ import os
 from luigi import Parameter, Task, LocalTarget
 from tempfile import TemporaryDirectory
 
-from scrapper.io import atomic_write
-from scrapper.posts import Posts
+from instagram_scraper.scraper.io import atomic_write
+from instagram_scraper.scraper.posts import Posts
 
 class ScrapePosts(Task):
     """"""

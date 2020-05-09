@@ -6,7 +6,7 @@ from PIL import Image
 from selenium.common.exceptions import NoSuchElementException
 
 
-class Scrapper:
+class Scraper:
 
     def __get__(self, instance, owner):
         if instance is None:
