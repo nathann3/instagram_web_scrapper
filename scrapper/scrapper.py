@@ -3,6 +3,7 @@ import io
 import time
 
 from PIL import Image
+from selenium.common.exceptions import NoSuchElementException
 
 
 class Scrapper:
@@ -122,8 +123,12 @@ class Scrapper:
         return image
 
     def get_posts_number(self):
-        path = '/html/body/div[1]/section/main/div/header/section/ul/li[1]/a/span'
-        posts = self.browser.find_element_by_xpath(path).text
+        try:
+            path = "/html/body/div[1]/section/main/div/header/section/ul/li[1]/span/span"
+            posts = self.browser.find_element_by_xpath(path).text
+        except NoSuchElementException:
+            path = "/html/body/div[1]/section/main/div/header/section/ul/li[1]/a/span"
+            posts = self.browser.find_element_by_xpath(path).text
         return posts
 
     def get_followers(self):
