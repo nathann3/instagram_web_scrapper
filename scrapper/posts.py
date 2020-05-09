@@ -36,7 +36,7 @@ class Posts:
         self.user = user
         self.password = password
         self.browser = Firefox()
-        self.scrape = {'post_urls': self.get_post_urls(term, n), 'browser': self.browser, "user": user, "password": password}
+        self.scrape = {'post_urls': self.get_post_urls(term, n), 'browser': self.browser}
         self.df = self.scrape
 
     def get_post_urls(self, term, n):
@@ -57,18 +57,6 @@ class Posts:
         posts = post_links[:n]
         return posts
 
-    # def login(self, browser, user, password):
-    #     browser.get('https://www.instagram.com/')
-    #     time.sleep(2)
-    #     fields = browser.find_elements_by_tag_name('input')
-    #     fields[0].send_keys(user)
-    #     time.sleep(0.5)
-    #     fields[1].send_keys(password)
-    #     time.sleep(0.5)
-    #     login_button = '/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div[4]/button'
-    #     browser.find_element_by_xpath(login_button).click()
-    #     time.sleep(6)
-
 class Users:
     scrape = Scrapper()
     user = CheckEnv()
@@ -78,15 +66,22 @@ class Users:
         self.user = user
         self.password = password
         self.browser = Firefox()
+        if self.user and self.password:
+            login(self.browser, self.user, self.password)
         self.scrape = {'post_urls': self.get_user_urls(term), 'browser': self.browser}
 
-    def get_user_urls(self, term):
-        urls=[]
-        url = "https://www.instagram.com/" + term
-        urls.append(url)
-        if self.user and self.password:
-            self.login(self.browser, self.user, self.password)
+
+    def get_user_urls(self, users):
+        urls = []
+        if isinstance(users, list):
+            for user in users:
+                url = "https://www.instagram.com/" + user
+                urls.append(url)
+        else:
+            url = "https://www.instagram.com/" + users
+            urls.append(url)
         return urls
+
 
 def user_or_tag(term):
     if term.startswith("#"):
