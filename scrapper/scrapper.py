@@ -3,6 +3,7 @@ import io
 import time
 
 from PIL import Image
+from selenium.common.exceptions import NoSuchElementException
 
 
 class Scrapper:
@@ -31,25 +32,43 @@ class Scrapper:
         likes_list = []
         image_urls_list = []
         image_list = []
+        posts_number_list = []
+        followers_list = []
+        following_list = []
         self.browser = browser
-        for url in post_urls:
-            self.browser.get(url)
-            time_list.append(self.get_post_datetime())
-            caption_list.append(self.get_post_captions())
-            username_list.append(self.get_username())
-            likes_list.append(self.get_post_likes())
-            image_urls_list.append(self.get_image_urls())
-            image_list.append(self.get_image(self.get_image_urls()))
-            time.sleep(2)
-        post_dict = {
-            'post_url': post_urls,
-            'image': image_list,
-            "datetime_posted": time_list,
-            "caption": caption_list,
-            'username': username_list,
-            "likes": likes_list,
-            'image_url': image_urls_list,
-        }
+        if post_urls[0].startswith("https://www.instagram.com/p/"):
+            for url in post_urls:
+                self.browser.get(url)
+                time_list.append(self.get_post_datetime())
+                caption_list.append(self.get_post_captions())
+                username_list.append(self.get_username())
+                likes_list.append(self.get_post_likes())
+                image_urls_list.append(self.get_image_urls())
+                image_list.append(self.get_image(self.get_image_urls()))
+                time.sleep(2)
+            post_dict = {
+                'post_url': post_urls,
+                'image': image_list,
+                "datetime_posted": time_list,
+                "caption": caption_list,
+                'username': username_list,
+                "likes": likes_list,
+                'image_url': image_urls_list,
+            }
+        elif post_urls[0].startswith("https://www.instagram.com/"):
+            for url in post_urls:
+                self.browser.get(url)
+                username_list.append(self.get_username())
+                posts_number_list.append(self.get_posts_number())
+                followers_list.append(self.get_followers())
+                following_list.append(self.get_following())
+                time.sleep(2)
+            post_dict = {
+                'user': username_list,
+                'posts': posts_number_list,
+                'followers': followers_list,
+                "following": following_list,
+            }
         self.browser.quit()
         return post_dict
 
@@ -59,7 +78,10 @@ class Scrapper:
         return image_url
 
     def get_username(self):
-        path = '/html/body/div[1]/section/main/div/div/article/header/div[2]/div[1]/div[1]/a'
+        if self.browser.current_url.startswith("https://www.instagram.com/p/"):
+            path = '/html/body/div[1]/section/main/div/div/article/header/div[2]/div[1]/div[1]/a'
+        else:
+            path = "/html/body/div[1]/section/main/div/header/section/div[1]/h2"
         username = self.browser.find_element_by_xpath(path).text
         return username
 
@@ -99,3 +121,22 @@ class Scrapper:
         image = Image.open(img)
         image.thumbnail((100, 100), Image.LANCZOS)
         return image
+
+    def get_posts_number(self):
+        try:
+            path = "/html/body/div[1]/section/main/div/header/section/ul/li[1]/span/span"
+            posts = self.browser.find_element_by_xpath(path).text
+        except NoSuchElementException:
+            path = "/html/body/div[1]/section/main/div/header/section/ul/li[1]/a/span"
+            posts = self.browser.find_element_by_xpath(path).text
+        return posts
+
+    def get_followers(self):
+        path = '/html/body/div[1]/section/main/div/header/section/ul/li[2]/a/span'
+        followers = self.browser.find_element_by_xpath(path).get_attribute('title')
+        return followers
+
+    def get_following(self):
+        path = '/html/body/div[1]/section/main/div/header/section/ul/li[3]/a/span'
+        following = self.browser.find_element_by_xpath(path).text
+        return following
