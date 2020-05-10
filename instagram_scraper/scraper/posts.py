@@ -59,6 +59,7 @@ class Posts:
 
 class Users:
     scrape = Scraper()
+    df = Create_DataFrame()
     user = CheckEnv()
     password = CheckEnv()
 
@@ -69,6 +70,7 @@ class Users:
         if self.user and self.password:
             login(self.browser, self.user, self.password)
         self.scrape = {'post_urls': self.get_user_urls(term), 'browser': self.browser}
+        self.df = self.scrape
 
 
     def get_user_urls(self, users):
