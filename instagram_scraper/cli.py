@@ -2,21 +2,35 @@ import argparse
 
 from luigi import build
 
-from .tasks.stylize import Stylize
+from instagram_scraper.tasks.scrape import DownloadImages, ScrapeUsers
 
-parser = argparse.ArgumentParser(description='Style picture with pre-trained model')
-parser.add_argument("-i", "--image", default='luigi.jpg')
-parser.add_argument("-m", "--model", default='rain_princess.pth')
-parser.add_argument("-s", "--scale", default='2')
-
+parser = argparse.ArgumentParser(description='Download Instagram posts and users')
+parser.add_argument("--posts", default='ralphthecorgi')
+parser.add_argument('--users', nargs='+')
+parser.add_argument("-n", "--number", default='9')
+parser.add_argument("-u", "--username")
+parser.add_argument("-p", "--password")
+parser.add_argument("-f", "--format", default='parquet')
 
 
 def main(args=None):
-    """Runs the luigi Scrape task given args"""
+    """Runs the luigi ScrapePosts task given args"""
     args = parser.parse_args()
-    build([
-        Stylize(
-            image=args.image,
-            model=args.model,
-            scale=args.scale
-        )], local_scheduler=True)
+    if args.users:
+        build([
+            ScrapeUsers(
+                target=args.users,
+                user=args.username,
+                password=args.password,
+                format=args.format
+            )], local_scheduler=True)
+
+    else:
+        build([
+            DownloadImages(
+                target=args.posts,
+                number=args.number,
+                user=args.username,
+                password=args.password,
+                format=args.format
+            )], local_scheduler=True)
