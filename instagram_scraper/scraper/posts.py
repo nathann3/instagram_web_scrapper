@@ -3,8 +3,8 @@ import time
 
 from selenium.webdriver import Firefox
 
-from .scrapper import Scrapper
-from .create_df import Create_DataFrame
+from instagram_scraper.scraper.scraper import Scraper
+from instagram_scraper.scraper.create_df import Create_DataFrame
 
 
 class CheckEnv:
@@ -27,7 +27,7 @@ class CheckEnv:
 
 class Posts:
 
-    scrape = Scrapper()
+    scrape = Scraper()
     df = Create_DataFrame()
     user = CheckEnv()
     password = CheckEnv()
@@ -58,7 +58,8 @@ class Posts:
         return posts
 
 class Users:
-    scrape = Scrapper()
+    scrape = Scraper()
+    df = Create_DataFrame()
     user = CheckEnv()
     password = CheckEnv()
 
@@ -69,6 +70,7 @@ class Users:
         if self.user and self.password:
             login(self.browser, self.user, self.password)
         self.scrape = {'post_urls': self.get_user_urls(term), 'browser': self.browser}
+        self.df = self.scrape
 
 
     def get_user_urls(self, users):
