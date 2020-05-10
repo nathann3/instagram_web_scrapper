@@ -38,7 +38,7 @@ python -m instagram_scraper --users ralphthecorgi maple.cat --format csv
 
 ## Credentials
 
-Credentials can either be manually inputted in the commandline, or be in a .env file
+Credentials are entirely optional and can either be manually inputted in the commandline, or be in a .env file
 ```bash
 # in .env
 INSTA_USER=<yourusername>
