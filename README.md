@@ -12,7 +12,9 @@ scraper also downloads all the images for you.
 
 ## Requirements
 
-To run the web scraper, Mozilla Firefox's geckodriver.exe must be in PATH
+This scraper uses Mozilla Firefox. To run the web scraper, Mozilla Firefox's geckodriver.exe must be in PATH
+
+https://github.com/mozilla/geckodriver/releases
 
 ## Navigating the command line
 Scraping posts:
@@ -43,7 +45,7 @@ INSTA_USER=<yourusername>
 INSTA_PASSWORD=<yourpassword>
 ```
 
-### Posts() and Users()
+## Posts() and Users()
 
 Individual components used to make Instagram Web Scraper are every useful
 for exploratory data analysis, especially in Jupyter Notebooks
@@ -67,7 +69,7 @@ post.image  # gives list of image objects
 post.likes  # gives list of likes
 [4763, 10738, 8665, 7423, 7328]
 
-user.followers  # dives list of number of followers
+user.followers  # gives list of number of followers
 ['321,926', '636,152']
 ```
 
