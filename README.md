@@ -1,6 +1,8 @@
 # Instagram WebScraper
 
-
+```bash
+pip install -e git+https://github.com/roostingcat/instagram_web_scrapper#egg=instagram_scraper
+```
 
 ## Summary
 
