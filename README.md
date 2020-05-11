@@ -5,6 +5,7 @@ pip install -e git+https://github.com/roostingcat/instagram_web_scrapper#egg=ins
 ```
 
 ## Summary
+Package and command line application:
 
 The Instragram Web Scraper uses Selenium and Requests to download
 information on any number of posts from either a given hashtag or user. The scraper also handles retrieving Instagram user's information (followers, following)
