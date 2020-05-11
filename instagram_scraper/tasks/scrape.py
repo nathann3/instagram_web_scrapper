@@ -26,6 +26,7 @@ class ScrapeUsers(Task):
         users = Users(target)
         df = users.df
 
+        # write to file
         with self.output().temporary_path() as temp_output_path:
             if self.format.lower() == "parquet":
                 df.to_parquet(temp_output_path, index=False)
@@ -63,6 +64,7 @@ class ScrapePosts(Task):
             # turn image object to array
             df["image"] = df["image"].apply(np.asarray)
 
+            # write to file
             if self.format.lower() == "parquet":
                 df["image"] = df["image"].apply(lambda x: x.tolist())
                 df.to_parquet(temp_output_path, index=False)
