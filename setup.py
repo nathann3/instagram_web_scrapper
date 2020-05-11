@@ -1,5 +1,8 @@
 import setuptools
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setuptools.setup(
     name="instagram_web_scraper",
     version="0.1.0",
@@ -12,5 +15,8 @@ setuptools.setup(
         "luigi",
         "pyarrow",
         "atomicwrites",
-    ]
+    ],
+    entry_points={
+        'console_scripts': ['instagram_scraper=instagram_scraper.cli:main']
+    }
 )
