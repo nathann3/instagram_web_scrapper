@@ -9,6 +9,8 @@ from instagram_scraper.scraper.posts import Posts, Users
 
 
 class ScrapeUsers(Task):
+    """Luigi task that scrapes user account information and saves it to parquet or csv"""
+
     LOCAL_ROOT = os.path.abspath("data")
 
     target = Parameter(default="maple.cat")
@@ -17,7 +19,7 @@ class ScrapeUsers(Task):
     format = Parameter(default="parquet")
 
     def output(self):
-        return LocalTarget(self.LOCAL_ROOT +"/users.{}".format(self.format.lower()))
+        return LocalTarget(self.LOCAL_ROOT + "/users.{}".format(self.format.lower()))
 
     def run(self):
         target = list(self.target)
@@ -36,7 +38,7 @@ class ScrapeUsers(Task):
 
 
 class ScrapePosts(Task):
-    """"""
+    """Luigi task that scrapes posts' information and saves it to parquet or csv"""
 
     LOCAL_ROOT = os.path.abspath("data")
 
@@ -47,7 +49,9 @@ class ScrapePosts(Task):
     format = Parameter(default="parquet")
 
     def output(self):
-        return LocalTarget(self.LOCAL_ROOT +"/{}_posts.{}".format(self.target, self.format.lower()))
+        return LocalTarget(
+            self.LOCAL_ROOT + "/{}_posts.{}".format(self.target, self.format.lower())
+        )
 
     def run(self):
         n = int(self.number)
@@ -56,10 +60,11 @@ class ScrapePosts(Task):
         df = posts.df
         with self.output().temporary_path() as temp_output_path:
 
-            df['image'] = df['image'].apply(np.asarray)
+            # turn image object to array
+            df["image"] = df["image"].apply(np.asarray)
 
             if self.format.lower() == "parquet":
-                df['image'] = df['image'].apply(lambda x: x.tolist())
+                df["image"] = df["image"].apply(lambda x: x.tolist())
                 df.to_parquet(temp_output_path, index=False)
 
             elif self.format.lower() == "csv":
@@ -68,8 +73,9 @@ class ScrapePosts(Task):
             else:
                 raise ValueError("output should be parquet or csv")
 
+
 class DownloadImages(Task):
-    """"""
+    """Luigi task that downloads images account information and saves it to parquet or csv"""
 
     LOCAL_ROOT = os.path.abspath("data")
 
@@ -80,13 +86,25 @@ class DownloadImages(Task):
     format = Parameter(default="parquet")
 
     def requires(self):
-        return ScrapePosts(self.target, self.number, self.user, self.password, self.format)
+        return ScrapePosts(
+            self.target, self.number, self.user, self.password, self.format
+        )
 
     def output(self):
-        return LocalTarget(self.LOCAL_ROOT +"/{}_images/".format(self.target))
+        return LocalTarget(self.LOCAL_ROOT + "/{}_images/".format(self.target))
 
     def run(self):
         n = int(self.number)
         output_directory = self.LOCAL_ROOT + "/" + self.target + "_images"
-        df = pd.read_csv(self.input().path)
-        atomic_directory(df['image_url'], "picture_*.jpg", output_directory, n)
+        if self.format == "csv":
+            df = pd.read_csv(self.input().path)
+
+            # downloads images
+            atomic_directory(df["image_url"], "picture_*.jpg", output_directory, n)
+        elif self.format == "parquet":
+            df = pd.read_parquet(self.input().path)
+
+            # downloads images
+            atomic_directory(df["image_url"], "picture_*.jpg", output_directory, n)
+        else:
+            raise ValueError("output should be parquet or csv")
