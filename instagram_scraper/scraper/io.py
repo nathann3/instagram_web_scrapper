@@ -1,6 +1,13 @@
-from atomicwrites import atomic_write as _backend_writer, AtomicWriter
+import io
 import pathlib
+import os
+import urllib.request
+
+from atomicwrites import atomic_write as _backend_writer, AtomicWriter
 from contextlib import contextmanager
+from PIL import Image
+from tempfile import TemporaryDirectory
+
 
 
 class SuffixWriter(AtomicWriter):
@@ -35,3 +42,26 @@ def atomic_write(file, mode="w", as_file=True, new_default="asdf", **kwargs):
             yield f
         else:
             yield f.name
+
+def atomic_directory(array, fileglob, directory, ntimes):
+    if not os.path.exists(directory):
+        with TemporaryDirectory() as tmp:
+            os.mkdir(tmp+'/t')
+            for n in range(ntimes):
+                file_name = fileglob.replace('*', str(n))
+                temp_name = tmp + "/t/" + file_name
+                with atomic_write(temp_name, overwrite=True) as f:
+                    request = urllib.request.urlopen(array[n]).read()
+                    img = io.BytesIO(request)
+                    image = Image.open(img)
+                    image.thumbnail((100, 100), Image.LANCZOS)
+                    image.save(f)
+
+                if (
+                        os.path.exists(tmp + "/t/" + fileglob.replace("*", str(ntimes - 1)))
+                        and len([name for name in os.listdir(tmp + "/t/") if os.path.isfile(tmp+"/t/"+name)])
+                        == ntimes
+                ):
+                    os.rename(tmp + "/t", directory)
+    else:
+        raise FileExistsError("File already exists!!!")

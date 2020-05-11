@@ -33,8 +33,6 @@ class Scraper:
         image_urls_list = []
         image_list = []
         posts_number_list = []
-        followers_list = []
-        following_list = []
         self.browser = browser
         if post_urls[0].startswith("https://www.instagram.com/p/"):
             for url in post_urls:
@@ -56,6 +54,8 @@ class Scraper:
                 'image_url': image_urls_list,
             }
         elif post_urls[0].startswith("https://www.instagram.com/"):
+            followers_list = []
+            following_list = []
             for url in post_urls:
                 self.browser.get(url)
                 username_list.append(self.get_username())

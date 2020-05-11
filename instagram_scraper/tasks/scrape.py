@@ -1,14 +1,10 @@
-import io
-import pandas as pd
 import numpy as np
 import os
-import urllib.request
+import pandas as pd
 
 from luigi import Parameter, Task, LocalTarget
-from PIL import Image
-from tempfile import TemporaryDirectory
 
-from instagram_scraper.scraper.io import atomic_write
+from instagram_scraper.scraper.io import atomic_directory
 from instagram_scraper.scraper.posts import Posts, Users
 
 
@@ -94,29 +90,3 @@ class DownloadImages(Task):
         output_directory = self.LOCAL_ROOT + "/" + self.target + "_images"
         df = pd.read_csv(self.input().path)
         atomic_directory(df['image_url'], "picture_*.jpg", output_directory, n)
-
-
-
-
-def atomic_directory(array, fileglob, directory, ntimes):
-    if not os.path.exists(directory):
-        with TemporaryDirectory() as tmp:
-            os.mkdir(tmp+'/t')
-            for n in range(ntimes):
-                file_name = fileglob.replace('*', str(n))
-                temp_name = tmp + "/t/" + file_name
-                with atomic_write(temp_name, overwrite=True) as f:
-                    request = urllib.request.urlopen(array[n]).read()
-                    img = io.BytesIO(request)
-                    image = Image.open(img)
-                    image.thumbnail((100, 100), Image.LANCZOS)
-                    image.save(f)
-
-                if (
-                        os.path.exists(tmp + "/t/" + fileglob.replace("*", str(ntimes - 1)))
-                        and len([name for name in os.listdir(tmp + "/t/") if os.path.isfile(tmp+"/t/"+name)])
-                        == ntimes
-                ):
-                    os.rename(tmp + "/t", directory)
-    else:
-        raise FileExistsError("File already exists!!!")
