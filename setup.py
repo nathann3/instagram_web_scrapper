@@ -15,5 +15,8 @@ setuptools.setup(
         "luigi",
         "pyarrow",
         "atomicwrites",
-    ]
+    ],
+    entry_points={
+        'console_scripts': ['instagram_scraper=instagram_scraper.cli:main']
+    }
 )
