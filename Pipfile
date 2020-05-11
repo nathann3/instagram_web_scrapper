@@ -4,18 +4,9 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pytest = "*"
-pytest-cov = "*"
 
 [packages]
-pandas = "*"
-ipython = "*"
-selenium = "*"
-pillow = "*"
-luigi = "*"
-jupyter = "*"
-pyarrow = "*"
-atomicwrites = "*"
+instagram-scraper = {editable = true,git = "https://github.com/roostingcat/instagram_web_scrapper"}
 
 [requires]
 python_version = "3.7"
