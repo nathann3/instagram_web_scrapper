@@ -21,7 +21,7 @@ https://github.com/mozilla/geckodriver/releases
 ## Navigating the command line
 Scraping posts:
 ```bash
-python -m instagram_scraper --posts ralphthecorgi --number 9 --format csv
+instagram_scraper --posts ralphthecorgi --number 9 --format csv
 ```
 * `--posts`: hashtag or user posts to be scraped.
 * `--number`: the nuber of posts to be scraped
@@ -31,7 +31,7 @@ python -m instagram_scraper --posts ralphthecorgi --number 9 --format csv
 
 Scraping User account info:
 ```bash
-python -m instagram_scraper --users ralphthecorgi maple.cat --format csv
+instagram_scraper --users ralphthecorgi maple.cat --format csv
 ```
 * `--users`: single or multiple Instagram users account information to be scraped.
 * `--username`: optional username your your own Instagram account (credentials can also be in .env).
