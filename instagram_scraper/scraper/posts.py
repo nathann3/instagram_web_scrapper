@@ -9,10 +9,11 @@ from instagram_scraper.scraper.create_df import Create_DataFrame
 
 class CheckEnv:
     """Checks .env file for Instagram credentials"""
+
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        return getattr(instance, '_' + self.name)
+        return getattr(instance, "_" + self.name)
 
     def __set__(self, instance, value):
         if value is None:
@@ -20,10 +21,11 @@ class CheckEnv:
                 value = os.environ["INSTA_%s" % self.name.upper()]
             except KeyError:
                 value = None
-        setattr(instance, '_' + self.name, value)
+        setattr(instance, "_" + self.name, value)
 
     def __set_name__(self, owner, name):
         self.name = name
+
 
 class Posts:
     """Scapes Instagram Posts information and returns them as dynamically created attributes."""
@@ -42,7 +44,10 @@ class Posts:
         self.user = user
         self.password = password
         self.browser = Firefox()
-        self.scrape = {'post_urls': self.get_post_urls(term, n), 'browser': self.browser}
+        self.scrape = {
+            "post_urls": self.get_post_urls(term, n),
+            "browser": self.browser,
+        }
         self.df = self.scrape
 
     def get_post_urls(self, term, n):
@@ -66,12 +71,12 @@ class Posts:
         while len(post_links) < n:
 
             # gathers all links on webpage
-            lis = self.browser.find_elements_by_tag_name('a')
+            lis = self.browser.find_elements_by_tag_name("a")
             for web_element in lis:
-                href = web_element.get_attribute('href')
+                href = web_element.get_attribute("href")
 
                 # checks if links are Instagram posts and prevent repeat posts
-                if 'https://www.instagram.com/p/' in href and href not in post_links:
+                if "https://www.instagram.com/p/" in href and href not in post_links:
                     post_links.append(href)
 
             # scrolls down to retrieve more posts
@@ -82,6 +87,7 @@ class Posts:
             time.sleep(3)
         posts = post_links[:n]
         return posts
+
 
 class Users:
     """Scapes Instagramers' account information and returns them as dynamically created attributes."""
@@ -102,9 +108,8 @@ class Users:
         self.browser = Firefox()
         if self.user and self.password:
             login(self.browser, self.user, self.password)
-        self.scrape = {'post_urls': self.get_user_urls(term), 'browser': self.browser}
+        self.scrape = {"post_urls": self.get_user_urls(term), "browser": self.browser}
         self.df = self.scrape
-
 
     def get_user_urls(self, users):
         """
@@ -128,15 +133,16 @@ def user_or_tag(term):
     :return: url
     """
     if term.startswith("#"):
-        term = term.lstrip('#')
+        term = term.lstrip("#")
 
         # url for hashtags
-        url = 'https://www.instagram.com/explore/tags/%s' % (term)
+        url = "https://www.instagram.com/explore/tags/%s" % (term)
     else:
 
         # url for users
         url = "https://www.instagram.com/%s" % (term)
     return url
+
 
 def login(browser, user, password):
     """
@@ -146,9 +152,9 @@ def login(browser, user, password):
     :param password: Instagram password
     :return: None
     """
-    browser.get('https://www.instagram.com/')
+    browser.get("https://www.instagram.com/")
     time.sleep(2)
-    fields = browser.find_elements_by_tag_name('input')
+    fields = browser.find_elements_by_tag_name("input")
 
     # inputs username credential
     fields[0].send_keys(user)
@@ -157,7 +163,9 @@ def login(browser, user, password):
     # inputs password credential
     fields[1].send_keys(password)
     time.sleep(0.5)
-    login_button = '/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div[4]/button'
+    login_button = (
+        "/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div[4]/button"
+    )
 
     # clicks login button
     browser.find_element_by_xpath(login_button).click()
